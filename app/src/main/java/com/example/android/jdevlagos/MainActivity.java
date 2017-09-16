@@ -23,8 +23,6 @@ import static com.example.android.jdevlagos.DataQuery.LOG_TAG;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SwipeRefreshLayout refresh;
-
     /**
      * URL for developers data from the github
      */
@@ -45,19 +43,28 @@ public class MainActivity extends AppCompatActivity {
     private TextView mEmptyView;
     private ProgressBar mProgressBar;
     private ListView listView;
+    private SwipeRefreshLayout swipeRefresh;
+    // create a loader
+    private DevelopersLoader loader1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
-//
-//            @Override
-//            public void onRefresh() {
-//                loader.forceLoad();
-//            }
-//        });
+        // initialize the swipeRefresh
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        // set the color for the swipe
+        swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_dark);
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+
+            @Override
+            public void onRefresh() {
+                loader1.forceLoad();
+                swipeRefresh.setVisibility(View.GONE);
+            }
+        });
 
         /** variable to test for network connectivity */
 
@@ -110,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
         // because this activity implements the LoaderCallbacks interface).
         if (isConnected) {
-            getSupportLoaderManager().initLoader(DEVELOPERS_LOADER_ID, null, loaderCallbacks);
+            loader1 = (DevelopersLoader) getSupportLoaderManager().initLoader(DEVELOPERS_LOADER_ID, null, loaderCallbacks);
             Log.i(LOG_TAG, "the initialization of loader started");
         } else {
             mProgressBar.setVisibility(View.GONE);
@@ -155,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
         public void onLoaderReset(Loader<ArrayList<DevProfile>> loader) {
             // Clear the adapter of previous earthquake data
             adapter.clear();
+            loader1 = null;
         }
     };
 }
